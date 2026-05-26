@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ポモドーロタイマー</title>
+    <link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+
+    <!-- 画面1：ポモドーロタイマー画面 -->
+<div id="timer-page" class="page">
+        <div id="timer-display">25:00</div>
+        <div id="character-container">
+            <div id="speech-bubble"></div>
+            <div id="character"></div>
+        </div>
+        <div class="button-area">
+            <button id="btn-to-calendar">カレンダー</button>
+            <button id="btn-stop">終了</button>
+        </div>
+    </div>
+
+    <!-- 画面2：カレンダー画面 -->
+    <div id="calendar-page" class="page">
+        <div class="calendar-container">
+            <div id="calendar-title">2026年 5月</div>
+            <div class="calendar-grid" id="calendar-grid"></div>
+        </div>
+        <div id="total-study-time">今月の合計：0分</div>
+        <button id="btn-to-timer">タイマー</button>
+    </div>
+
+    <script src="script.js"></script>
+
+    <script src="script.js"></script>
+</body>
+</html>
