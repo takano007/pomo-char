@@ -83,9 +83,15 @@ window.addEventListener('load', () => {
     if (Notification.permission === "default") Notification.requestPermission();
 
     const btnStart = document.getElementById('btn-start');
-    btnStart.addEventListener('click', () => {
+
+        btnStart.addEventListener('click', () => {
+        // 1. iPhoneのスピーカーの鍵を解除
         playBeepSound();
+        
+        // 2. スリープ防止をONにする (awaitを外して普通に呼び出す)
         requestWakeLock();
+
+        // 3. タイマーをスタート
         startTimer();
         btnStart.style.display = 'none';
     });
