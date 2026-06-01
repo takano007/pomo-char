@@ -11,7 +11,7 @@ if (!userId) {
 }
 
 let timer = null;
-let timeLeft = 25 * 60; 
+let timeLeft = 1 * 60; 
 let isWorking = true;
 let isTimerRunning = false;
 let sessionStartTime = null; 
@@ -137,13 +137,24 @@ function playBeepSound() {
 }
 
 function sendNotification(title, body) {
-    if (Notification.permission === "granted") {
-        new Notification(title, { body: body });
+    try {
+        // iPhoneのSafariでもエラーにならないよう、慎重にチェックを重ねる
+        if ('Notification' in window && Notification.permission === "granted") {
+            new Notification(title, { body: body });
+        } else {
+            // 🌟 iPhone（Safari）の場合は、通知の代わりにキャラクターに喋らせる
+            saySomething([title + " " + body], 5000);
+        }
+    } catch (e) {
+        console.log("Safariの通知ブロックを回避しました:", e);
+        // エラーが起きても無視して、キャラクターに喋らせる
+        saySomething([title], 5000);
     }
-    playBeepSound();
+    
+    playBeepSound(); // 音を鳴らす
 }
 
-// 🌟 Safari対策：中身の空っぽな関数（()=>{}）を完全に無くし、古い書き方に統一
+// Safari対策：中身の空っぽな関数（()=>{}）を完全に無くし、古い書き方に統一
 function requestWakeLock() {
     try {
         noSleep.enable();
@@ -210,7 +221,7 @@ function updateDisplay() {
 
 function switchMode() {
     isWorking = !isWorking;
-    timeLeft = isWorking ? 25 * 60 : 5 * 60;
+    timeLeft = isWorking ? 1 * 60 : 5 * 60;
     
     if (isWorking) {
         sendNotification("集中タイムスタート！", "さあ、次の25分もがんばろう♪");
@@ -234,7 +245,7 @@ document.getElementById('btn-stop').addEventListener('click', function() {
         const btnStart = document.getElementById('btn-start');
         if (btnStart) btnStart.style.display = 'block';
         
-        timeLeft = 25 * 60;
+        timeLeft = 1 * 60;
         updateDisplay();
 
         resetPositionToCenter();
@@ -273,7 +284,7 @@ function saySomethingStatic(wordList) {
 function resetPositionToCenter() {
     charContainer.style.transition = "none"; 
     const centerX = (window.innerWidth - 120) / 2;
-    const centerY = (window.innerHeight - 120) / 2;
+    const centerY = (window.innerHeight - 120) / 2 + 80;
     charContainer.style.left = `${centerX}px`;
     charContainer.style.top = `${centerY}px`;
 }
