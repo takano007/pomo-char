@@ -11,7 +11,7 @@ if (!userId) {
 }
 
 let timer = null;
-let timeLeft = 1 * 60; 
+let timeLeft = 25 * 60; 
 let isWorking = true;
 let isTimerRunning = false;
 let sessionStartTime = null; 
@@ -81,6 +81,52 @@ window.addEventListener('load', function() {
     bubble.style.display = 'none';
     playAnimation(breakImages, 500);
     
+    // 【Version 2】現在のユーザーIDをカレンダーの下に表示
+    const currentIdText = document.getElementById('current-user-id-text');
+    if (currentIdText) {
+        currentIdText.textContent = userId;
+    }
+    
+    // 【Version 2】IDを押すと入力欄が出現する処理
+    const triggerIdDisplay = document.getElementById('trigger-id-display');
+    const transferInputArea = document.getElementById('transfer-input-area');
+    if (triggerIdDisplay && transferInputArea) {
+        triggerIdDisplay.addEventListener('click', function() {
+            // 表示・非表示を切り替える
+            if (transferInputArea.style.display === 'none') {
+                transferInputArea.style.display = 'block';
+            } else {
+                transferInputArea.style.display = 'none';
+            }
+        });
+    }
+
+    // 【Version 2】引継ぎボタンを押した時の処理
+    const btnDoTransfer = document.getElementById('btn-do-transfer');
+    if (btnDoTransfer) {
+        btnDoTransfer.addEventListener('click', function() {
+            const inputId = document.getElementById('input-new-user-id').value.trim();
+            
+            if (!inputId) {
+                alert("引き継ぎたいユーザーIDを入力してください。");
+                return;
+            }
+            if (inputId === userId) {
+                alert("現在と同じユーザーIDです。");
+                return;
+            }
+
+            if (confirm("入力されたユーザーIDにデータを切り替えますか？\n次回以降もこのIDで自動ログインされます。")) {
+                // localStorage（スマホの記憶）を新しいIDに書き換える
+                localStorage.setItem('supabase_user_id', inputId);
+                
+                alert("引き継ぎが完了しました！データを反映するためにアプリを再起動します。");
+                // 画面をリロードして、次回（今この瞬間から）新しいIDで動かす
+                location.reload(); 
+            }
+        });
+    }
+
     // Safari対策：画面を開いた直後に通知許可を求めず、安全に処理する
     try {
         if ('Notification' in window && Notification.permission === "default") {
@@ -221,7 +267,7 @@ function updateDisplay() {
 
 function switchMode() {
     isWorking = !isWorking;
-    timeLeft = isWorking ? 1 * 60 : 5 * 60;
+    timeLeft = isWorking ? 25 * 60 : 5 * 60;
     
     if (isWorking) {
         sendNotification("集中タイムスタート！", "さあ、次の25分もがんばろう♪");
@@ -245,7 +291,7 @@ document.getElementById('btn-stop').addEventListener('click', function() {
         const btnStart = document.getElementById('btn-start');
         if (btnStart) btnStart.style.display = 'block';
         
-        timeLeft = 1 * 60;
+        timeLeft = 25 * 60;
         updateDisplay();
 
         resetPositionToCenter();

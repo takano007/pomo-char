@@ -44,6 +44,21 @@
         <div id="total-study-time">この月の合計：0分</div>
 
         <button id="btn-to-timer" class="bottom-return-btn">タイマーへ戻る</button>
+
+        <!-- ユーザーID引継ぎ機能 -->
+        <div class="transfer-section" style="margin-top: 40px; text-align: center; width: 100%;">
+            <p id="trigger-id-display" style="font-size: 11px; color: #a0aec0; cursor: pointer; text-decoration: underline; margin: 0; padding: 10px 0;">
+                ユーザーID: <span id="current-user-id-text">-</span>
+            </p>
+
+            <div id="transfer-input-area" style="display: none; margin-top: 15px; padding: 15px; border: 1px dashed #cbd5e0; border-radius: 8px; background: #f7fafc; box-sizing: border-box;">
+                <p style="margin: 0 0 10px 0; font-size: 12px; font-weight: bold; color: #4a5568;">📱 データの引き継ぎ</p>
+                <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                    <input type="text" id="input-new-user-id" placeholder="引き継ぎたいIDを入力" style="padding: 8px; font-size: 13px; border: 1px solid #cbd5e0; border-radius: 6px; flex: 1; max-width: 200px; box-sizing: border-box;">
+                    <button id="btn-do-transfer" style="padding: 8px 12px; font-size: 13px; font-weight: bold; background: #3182ce; color: white; border: none; border-radius: 6px; cursor: pointer;">user_id引継ぎ</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>

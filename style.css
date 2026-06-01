@@ -1,11 +1,11 @@
 /* 全体共通ベース設定（iPhoneのズレを絶対に防ぐ） */
 html, body {
     width: 100%;
-    overflow-x: hidden;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: sans-serif;
+    overflow: hidden;
 }
 
 /* ==========================================
