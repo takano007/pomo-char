@@ -1,3 +1,19 @@
+/* iPhone Safariでの画面の左寄り・横ズレを絶対に防ぐ設定 */
+html, body {
+    width: 100%;
+    overflow-x: hidden; /* 画面からはみ出たカレンダーを完全に隠す */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* タイマーページ自体も画面いっぱいに広がるように固定 */
+#timer-page {
+    width: 100vw;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
 body {
 margin: 0; padding: 0;
 background-color: white; color: #3a3a3a;
