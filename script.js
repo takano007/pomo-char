@@ -11,7 +11,7 @@ if (!userId) {
 }
 
 let timer = null;
-let timeLeft = 25 * 60; 
+let timeLeft = 1 * 60; 
 let isWorking = true;
 let isTimerRunning = false;
 let sessionStartTime = null; 
@@ -210,7 +210,7 @@ function updateDisplay() {
 
 function switchMode() {
     isWorking = !isWorking;
-    timeLeft = isWorking ? 25 * 60 : 5 * 60;
+    timeLeft = isWorking ? 1 * 60 : 5 * 60;
     
     if (isWorking) {
         sendNotification("集中タイムスタート！", "さあ、次の25分もがんばろう♪");
@@ -234,7 +234,7 @@ document.getElementById('btn-stop').addEventListener('click', function() {
         const btnStart = document.getElementById('btn-start');
         if (btnStart) btnStart.style.display = 'block';
         
-        timeLeft = 25 * 60;
+        timeLeft = 1 * 60;
         updateDisplay();
 
         resetPositionToCenter();
