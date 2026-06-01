@@ -48,26 +48,5 @@
 
     <script src="script.js"></script>
 
-
-<!-- 監視用 -->>
-                <div id="debug-log" style="position: fixed; bottom: 0; left: 0; width: 100%; max-height: 120px; overflow-y: auto; background: rgba(0,0,0,0.8); color: #00ff00; font-family: monospace; font-size: 11px; z-index: 9999; padding: 5px; box-sizing: border-box; pointer-events: none;">
-                    [Debug Monitor] アプリ起動完了
-                </div>
-
-                <script>
-                    // 画面のモニターに文字を出す関数
-                    window.logToScreen = function(msg) {
-                        const el = document.getElementById('debug-log');
-                        if (el) {
-                            el.innerHTML += '<br>▶ ' + msg;
-                            el.scrollTop = el.scrollHeight; // 常に最新を表示
-                        }
-                    };
-                    // 万が一エラーが起きたらここに強制表示する
-                    window.onerror = function(message, source, lineno, colno, error) {
-                        window.logToScreen('❌エラー発生: ' + message + ' (' + lineno + '行目)');
-                        return false;
-                    };
-                </script>
 </body>
 </html>
