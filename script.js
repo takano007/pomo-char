@@ -14,18 +14,14 @@ let timer = null;
 let timeLeft = 25 * 60; 
 let isWorking = true;
 let isTimerRunning = false;
-
-// 勉強時間を正確に測るための「タイムスタンプ記録方式」に変更
 let sessionStartTime = null; 
 
 // スリープ防止用の変数
 let noSleep = new NoSleep();
 let wakeLock = null;
-
-// カレンダーの表示月を管理するオブジェクト
 let currentCalendarDate = new Date();
 
-// --- アニメーション用の変数 ---
+// アニメーション用
 const charImg = document.getElementById('char-img'); 
 let animTimer = null;   
 let animIndex = 0;      
@@ -41,22 +37,28 @@ const timerDisplay = document.getElementById('timer-display');
 const charContainer = document.getElementById('character-container');
 const character = document.getElementById('character');
 const bubble = document.getElementById('speech-bubble');
-const timerPage = document.getElementById('timer-page');
-const calendarPage = document.getElementById('calendar-page');
 
-// --- 画面遷移 ---
+// --- 画面遷移（安全にその場で取得して切り替える方式） ---
 document.getElementById('btn-to-calendar').addEventListener('click', () => {
-    timerPage.style.transform = 'translateX(-100%)';
-    calendarPage.style.transform = 'translateX(0)';
-    renderCalendar(); 
+    const tPage = document.getElementById('timer-page');
+    const cPage = document.getElementById('calendar-page');
+    if (tPage && cPage) {
+        tPage.style.display = 'none';
+        cPage.style.display = 'flex';
+        renderCalendar(); 
+    }
 });
 
 document.getElementById('btn-to-timer').addEventListener('click', () => {
-    timerPage.style.transform = 'translateX(0)';
-    calendarPage.style.transform = 'translateX(100%)';
+    const tPage = document.getElementById('timer-page');
+    const cPage = document.getElementById('calendar-page');
+    if (tPage && cPage) {
+        tPage.style.display = 'block';
+        cPage.style.display = 'none';
+    }
 });
 
-// 前月・翌月ボタンの処理
+// 前月・翌月ボタン
 const btnPrevMonth = document.getElementById('btn-prev-month');
 if (btnPrevMonth) {
     btnPrevMonth.addEventListener('click', () => {
@@ -81,15 +83,15 @@ window.addEventListener('load', () => {
     if (Notification.permission === "default") Notification.requestPermission();
 
     const btnStart = document.getElementById('btn-start');
-    btnStart.addEventListener('click', async () => {
+    btnStart.addEventListener('click', () => {
         playBeepSound();
-        await requestWakeLock();
+        requestWakeLock();
         startTimer();
         btnStart.style.display = 'none';
     });
 });
 
-// --- 音を鳴らす共通関数（iPhone & Windows 両対応） ---
+// 音を鳴らす
 function playBeepSound() {
     try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -121,26 +123,26 @@ function sendNotification(title, body) {
     playBeepSound();
 }
 
-// --- 画面スリープを防止する関数 ---
-async function requestWakeLock() {
-    noSleep.enable();
-    if ('wakeLock' in navigator) {
-        try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {}
-    }
+// スリープ防止
+function requestWakeLock() {
+    try {
+        noSleep.enable();
+        if ('wakeLock' in navigator) {
+            navigator.wakeLock.request('screen').then(lock => {
+                wakeLock = lock;
+            }).catch(err => {});
+        }
+    } catch (e) {}
 }
 function releaseWakeLock() {
     noSleep.disable();
     if (wakeLock !== null) { wakeLock.release().then(() => { wakeLock = null; }); }
 }
 
-// --- 🌟タイマー機能 ---
+// タイマー制御
 function startTimer() {
     isTimerRunning = true;
-    
-    // 集中タイム開始の瞬間の現在時刻をガッチリ記録
-    if (isWorking) {
-        sessionStartTime = new Date(); 
-    }
+    if (isWorking) { sessionStartTime = new Date(); }
     
     if (isWorking) {
         playAnimation(workImages, 500); 
@@ -157,11 +159,7 @@ function startTimer() {
         
         if (timeLeft <= 0) {
             clearInterval(timer);
-            
-            // 25分タイマーが満了した時、集中タイムだったら記録する
-            if (isWorking) {
-                calculateAndSaveMinutes();
-            }
+            if (isWorking) { calculateAndSaveMinutes(); }
             switchMode();
         }
     }, 1000);
@@ -173,7 +171,6 @@ function updateDisplay() {
     timerDisplay.textContent = `${minutes}:${seconds}`;
 }
 
-// 🌟 モード切り替え（集中 ⇔ 休憩）
 function switchMode() {
     isWorking = !isWorking;
     timeLeft = isWorking ? 25 * 60 : 5 * 60;
@@ -184,21 +181,16 @@ function switchMode() {
         sendNotification("時間です！休憩タイム♪", "ゆっくり休んでね。");
     }
 
-    // 切り替え時にキャラクターを画面中央に移動させる
     resetPositionToCenter();
     startTimer(); 
 }
 
-// 終了ボタンを押したとき
+// 修了ボタン
 document.getElementById('btn-stop').addEventListener('click', () => {
     if (isTimerRunning) {
         clearInterval(timer);
         isTimerRunning = false;
-        
-        // 途中で止められた場合、そこまでに経過した分数を計算して保存
-        if (isWorking) {
-            calculateAndSaveMinutes();
-        }
+        if (isWorking) { calculateAndSaveMinutes(); }
         
         releaseWakeLock();
 
@@ -208,32 +200,22 @@ document.getElementById('btn-stop').addEventListener('click', () => {
         timeLeft = 25 * 60;
         updateDisplay();
 
-        // 終了時にもキャラクターを画面中央に戻す
         resetPositionToCenter();
-
         playAnimation(breakImages, 500);
         saySomething(["お疲れさま"], 3000);
     }
 });
 
-// 🌟経過時間を計算してSupabaseへ送る関数
 function calculateAndSaveMinutes() {
     if (!sessionStartTime) return;
-    
     const now = new Date();
-    // 開始時間と現在の時間の「差分（秒数）」を計算
     const passedSeconds = Math.floor((now - sessionStartTime) / 1000);
-    // 秒数を分数に直し、四捨五入する
     const roundedMinutes = Math.round(passedSeconds / 60);
     
     if (roundedMinutes > 0) {
         saveStudyTime(roundedMinutes);
-        console.log(`⏱️ ${roundedMinutes}分間の勉強時間を記録しました！`);
-    } else {
-        console.log("⏱️ 1分未満の短時間だったため、記録はスキップされました。");
     }
-    
-    sessionStartTime = null; // 使い終わったらリセット
+    sessionStartTime = null;
 }
 
 function saySomething(wordList, duration) {
@@ -251,22 +233,16 @@ function saySomethingStatic(wordList) {
     bubble.style.display = 'block';
 }
 
-// 画面中央に位置をリセットする共通関数
 function resetPositionToCenter() {
-    // スムーズ移動用のtransitionがついたままだと変な動きになるので、一瞬切る
     charContainer.style.transition = "none"; 
-    
     const centerX = (window.innerWidth - 120) / 2;
     const centerY = (window.innerHeight - 120) / 2;
     charContainer.style.left = `${centerX}px`;
     charContainer.style.top = `${centerY}px`;
 }
 
-// --- ランダム移動アニメーション ---
 function moveCharacterRandomly() {
-    // 歩いて移動するときは、スムーズに動くようにCSSを設定
     charContainer.style.transition = "left 1.5s ease-in-out, top 1.5s ease-in-out";
-    
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
     const randomX = Math.random() * (screenWidth - 120);
@@ -284,9 +260,7 @@ function moveCharacterRandomly() {
             playAnimation(workImages, 500);  
         } else {
             playAnimation(breakImages, 500); 
-            if (isTimerRunning && !isWorking) {
-                bubble.style.display = 'block'; 
-            }
+            if (isTimerRunning && !isWorking) { bubble.style.display = 'block'; }
         }
     }, 1500);
 }
@@ -300,7 +274,7 @@ function playAnimation(imageArray, intervalTime) {
     }, intervalTime);
 }
 
-// --- ドラッグロジック ---
+// ドラッグ処理
 let isDragging = false;
 let startX, startY;
 let initialLeft, initialTop;
@@ -354,23 +328,13 @@ function getTodayDateString() {
 
 async function saveStudyTime(minutes) {
     const dateStr = getTodayDateString();
-    const { data, error } = await supabaseClient
-        .from('study_logs')
-        .insert([{ user_id: userId, study_date: dateStr, minutes: minutes }]);
-    if (error) console.error('保存エラー:', error);
+    await supabaseClient.from('study_logs').insert([{ user_id: userId, study_date: dateStr, minutes: minutes }]);
 }
 
-// --- 🌟カレンダー読み込み機能 ---
+// カレンダー描画
 async function renderCalendar() {
-    const { data: studyData, error } = await supabaseClient
-        .from('study_logs')
-        .select('study_date, minutes')
-        .eq('user_id', userId);
-
-    if (error) {
-        console.error('❌ ② Supabaseデータの取得に失敗しました:', error);
-        return;
-    }
+    const { data: studyData, error } = await supabaseClient.from('study_logs').select('study_date, minutes').eq('user_id', userId);
+    if (error) return;
 
     const studyLogMap = {};
     if (studyData && studyData.length > 0) {
@@ -397,14 +361,10 @@ async function renderCalendar() {
     const month = currentCalendarDate.getMonth();
     
     const titleElement = document.getElementById('calendar-title');
-    if (titleElement) {
-        titleElement.textContent = `${year}年 ${month + 1}月`;
-    }
+    if (titleElement) { titleElement.textContent = `${year}年 ${month + 1}月`; }
 
     const firstDayIndex = new Date(year, month, 1).getDay();
     const totalDays = new Date(year, month + 1, 0).getDate();
-    
-    let totalMinutes = 0;
 
     for (let i = 0; i < firstDayIndex; i++) {
         const emptyCell = document.createElement('div');
@@ -423,14 +383,11 @@ async function renderCalendar() {
             timeDiv.className = 'study-time';
             timeDiv.textContent = `${studyLogMap[dateKey]}分`;
             cell.appendChild(timeDiv);
-            totalMinutes += studyLogMap[studyLogMap[dateKey] ? dateKey : ''];
             cell.style.background = '#c2dcf1';
         }
-
         grid.appendChild(cell);
     }
 
-    // 今回記録した分数をカレンダー上で正しく足し算して合計を表示する
     let calculatedTotal = 0;
     Object.keys(studyLogMap).forEach(key => {
         const logDate = new Date(key);
@@ -440,7 +397,5 @@ async function renderCalendar() {
     });
 
     const totalElement = document.getElementById('total-study-time');
-    if (totalElement) {
-        totalElement.textContent = `この月の合計：${calculatedTotal}分`;
-    }
+    if (totalElement) { totalElement.textContent = `この月の合計：${calculatedTotal}分`; }
 }
