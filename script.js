@@ -75,20 +75,34 @@ if (btnNextMonth) {
 }
 
 // --- 初期化 ---
+// --- ⭕ 修正：初期化（Safariでフリーズしない安全版） ---
 window.addEventListener('load', () => {
     resetPositionToCenter();
     bubble.style.display = 'none';
     playAnimation(breakImages, 500);
-    
-    if (Notification.permission === "default") Notification.requestPermission();
 
+    // ⭕ 修正後：Safariを怒らせないように、通知の処理を優しく安全に書く
+    try {
+        if ('Notification' in window && Notification.permission === "default") {
+            // 画面を開いた瞬間ではなく、ユーザーが操作した後に裏でひっそり要求する
+            setTimeout(() => {
+                Notification.requestPermission().catch(() => {});
+            }, 1000);
+        }
+    } catch (e) {
+        console.log("このブラウザは通知に対応していません");
+    }
+
+    // スタートボタンの処理
     const btnStart = document.getElementById('btn-start');
-    btnStart.addEventListener('click', () => {
-        playBeepSound();
-        requestWakeLock();
-        startTimer();
-        btnStart.style.display = 'none';
-    });
+    if (btnStart) {
+        btnStart.addEventListener('click', () => {
+            playBeepSound();
+            requestWakeLock();
+            startTimer();
+            btnStart.style.display = 'none';
+        });
+    }
 });
 
 // 音を鳴らす
