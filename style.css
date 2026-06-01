@@ -15,7 +15,6 @@ button {
 background-color: #3c4043; color: white; border: none;
 padding: 12px 24px; font-size: 16px; border-radius: 25px;
 cursor: pointer; font-weight: bold; margin: 5px;
-box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 button:active { transform: scale(0.95); }
 
@@ -30,9 +29,8 @@ left: calc(50% - 60px); top: calc(50% - 60px);
 transition: left 1.5s ease-in-out, top 1.5s ease-in-out; /* 1.5秒かけてなめらかに移動 */
 }
 #character {
-width: 100px; height: 100px; background-color: #ff4757;
-border-radius: 20px; box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-cursor: grab;
+    width: 100px; height: 100px;
+    cursor: grab;
 }
 #character:active { cursor: grabbing; }
 
@@ -48,14 +46,141 @@ white-space: nowrap; display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 #calendar-page { transform: translateX(100%); background-color:white; }
 .calendar-container {
 width: 90%; max-width: 400px; margin-top: 40px;
-background: #a5a5a5; padding: 15px; border-radius: 15px;
+background: #ebf1f7; padding: 15px; border-radius: 15px;
 }
 #calendar-title { text-align: center; font-size: 20px; margin-bottom: 15px; }
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
 .day-name { font-size: 12px; color: #3a3a3a; padding-bottom: 5px; }
 .day-cell {
-background: #bdbdbd; min-height: 50px; border-radius: 8px;
+min-height: 50px; border-radius: 8px; border: 1px solid #c2dcf1;
 display: flex; flex-direction: column; justify-content: space-between; padding: 4px; font-size: 14px;
 }
-.study-time { font-size: 10px; color: #3da8ff; font-weight: bold; }
+.study-time { font-size: 12px; color: #3da8ff; font-weight: bold; }
 #total-study-time { font-size: 18px; margin: 20px 0; color: #3da8ff; font-weight: bold; }
+
+/* ==========================================
+   🌟 カレンダーページ全体の表示修正
+========================================== */
+#calendar-page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #ffffff;
+    color: #333333;
+    box-sizing: border-box;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+}
+
+/* 🌟 修正：前月・翌月ボタンを左右の端に、年月を中央に配置 */
+.calendar-header {
+    display: flex;
+    justify-content: space-between; /* 左右の端に広げる */
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+    width: 100%;
+    max-width: 400px; /* カレンダーの幅と合わせる */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.calendar-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    text-align: center;
+    flex-grow: 1; /* 年月を中央に寄せるための設定 */
+}
+
+.calendar-header button {
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: 1px solid #ffffff;
+    background: #4a5568;
+    font-size: 14px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+/* マス目を7列に並べる設定 */
+#calendar-grid {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 400px;
+}
+
+.day-name {
+    text-align: center;
+    font-weight: bold;
+    padding: 5px 0;
+    font-size: 14px;
+    background-color: #f0f0f0;
+    border-radius: 3px;
+}
+.day-name:nth-child(1) { color: #ff4d4d; }
+.day-name:nth-child(7) { color: #4d79ff; }
+
+.day-cell {
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    min-height: 50px;
+    padding: 4px;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    background-color: #fafafa;
+}
+
+.study-time {
+    font-size: 10px;
+    color: #3182ce;
+    padding: 2px 4px;
+    border-radius: 3px;
+    width: 90%;
+    text-align: center;
+    margin-top: auto;
+    box-sizing: border-box;
+}
+
+#total-study-time {
+    text-align: center;
+    margin: 20px 0 10px 0; 
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* ==========================================
+   「この月の合計」のすぐ下に配置するボタン
+========================================== */
+.bottom-return-btn {
+    margin-top: 0; /* 一番下に押し出す設定を解除 */
+    width: 100%;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 14px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #4a5568; /* 落ち着いたグレー */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: block; /* 確実に中央に配置するため */
+}
+
+.bottom-return-btn:hover {
+    background-color: #2d3748;
+}

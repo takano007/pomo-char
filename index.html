@@ -5,15 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ポモドーロタイマー</title>
     <link rel="stylesheet" href="style.css" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nosleep/0.12.0/NoSleep.min.js"></script>
 </head>
 <body>
 
     <!-- 画面1：ポモドーロタイマー画面 -->
 <div id="timer-page" class="page">
         <div id="timer-display">25:00</div>
+        <button id="btn-start" style="background-color: #ffa135; margin-top: 20px; padding: 15px 40px; font-size: 20px;">スタート！</button>
         <div id="character-container">
             <div id="speech-bubble"></div>
-            <div id="character"></div>
+            <div id="character">
+                <img id="char-img" src="images/idle1.png" alt="character" style="width: 100%; height: 100%; object-fit: contain;">
+            </div>
         </div>
         <div class="button-area">
             <button id="btn-to-calendar">カレンダー</button>
@@ -22,17 +26,24 @@
     </div>
 
     <!-- 画面2：カレンダー画面 -->
-    <div id="calendar-page" class="page">
-        <div class="calendar-container">
-            <div id="calendar-title">2026年 5月</div>
-            <div class="calendar-grid" id="calendar-grid"></div>
-        </div>
-        <div id="total-study-time">今月の合計：0分</div>
-        <button id="btn-to-timer">タイマー</button>
+    <div id="calendar-page" style="transform: translateX(100%); transition: transform 0.5s ease-in-out;">
+    
+    <div class="calendar-header">
+        <button id="btn-prev-month">＜ 前月</button>
+        <h2 id="calendar-title">2026年 6月</h2>
+        <button id="btn-next-month">翌月 ＞</button>
     </div>
+    
+    <div id="calendar-grid"></div>
+    
+    <div id="total-study-time">この月の合計：0分</div>
 
+    <button id="btn-to-timer" class="bottom-return-btn">タイマーへ戻る</button>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
+    
 
-    <script src="script.js"></script>
 </body>
 </html>
