@@ -201,6 +201,28 @@ function startTimer() {
     }
 
     if (timer !== null) clearInterval(timer);
+
+    // テスト用
+    timer = setInterval(function() {
+        timeLeft--;
+        updateDisplay();
+        
+        // 🌟 追加：カウントダウンが正常に動いているか毎秒モニターに報告
+        if (timeLeft <= 5 || timeLeft % 60 === 0) {
+            if (typeof window.logToScreen === 'function') {
+                window.logToScreen("タイマー残り: " + timeLeft + "秒 (Running=" + isTimerRunning + ")");
+            }
+        }
+        
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            if (typeof window.logToScreen === 'function') { window.logToScreen("🚨0秒到達！switchModeを呼び出します"); }
+            
+            if (isWorking) { calculateAndSaveMinutes(); }
+            switchMode();
+        }
+    }, 1000);
+    /* テスト用に一時停止
     timer = setInterval(function() {
         timeLeft--;
         updateDisplay();
@@ -210,7 +232,7 @@ function startTimer() {
             if (isWorking) { calculateAndSaveMinutes(); }
             switchMode();
         }
-    }, 1000);
+    }, 1000); */
 }
 
 function updateDisplay() {
@@ -220,6 +242,12 @@ function updateDisplay() {
 }
 
 function switchMode() {
+//テスト用に１行追加
+    if (typeof window.logToScreen === 'function') { window.logToScreen("🔄 switchModeの中に入りました！"); }
+
+
+
+
     isWorking = !isWorking;
     timeLeft = isWorking ? 1 * 60 : 5 * 60;
     
