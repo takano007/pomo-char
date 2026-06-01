@@ -20,6 +20,7 @@ let sessionStartTime = null;
 let noSleep = new NoSleep();
 let wakeLock = null;
 let currentCalendarDate = new Date();
+let beepAudio = new Audio('beep.mp3');
 
 // アニメーション用
 const charImg = document.getElementById('char-img'); 
@@ -38,7 +39,7 @@ const charContainer = document.getElementById('character-container');
 const character = document.getElementById('character');
 const bubble = document.getElementById('speech-bubble');
 
-// --- 画面遷移（Safariでエラーにならないfunction表記に変更） ---
+// --- 画面遷移 ---
 document.getElementById('btn-to-calendar').addEventListener('click', function() {
     const tPage = document.getElementById('timer-page');
     const cPage = document.getElementById('calendar-page');
@@ -80,12 +81,12 @@ window.addEventListener('load', function() {
     bubble.style.display = 'none';
     playAnimation(breakImages, 500);
     
-    // Safari対策：画面読み込み直後の通知要求によるフリーズを防止
+    // Safari対策：画面を開いた直後に通知許可を求めず、安全に処理する
     try {
         if ('Notification' in window && Notification.permission === "default") {
             setTimeout(function() {
                 Notification.requestPermission().then(function(p) {
-                    console.log("通知設定完了:", p);
+                    console.log("通知設定:", p);
                 }).catch(function(err) {
                     console.log("通知エラー:", err);
                 });
@@ -95,18 +96,23 @@ window.addEventListener('load', function() {
         console.log("通知非対応ブラウザ");
     }
 
+    // スタートボタンの処理
     const btnStart = document.getElementById('btn-start');
     if (btnStart) {
         btnStart.addEventListener('click', function() {
-            // 1. iPhoneのスピーカーの鍵を解除
-            playBeepSound();
+            // iPhone対策：ボタンを押した瞬間に音ファイルを強制ロード
+            if (beepAudio) {
+                beepAudio.load(); 
+            }
             
-            // 2. スリープ防止をONにする
-            requestWakeLock();
-
-            // 3. タイマーをスタート
-            startTimer();
+            playBeepSound();    // 音を鳴らす
+            startTimer();       // タイマー始動
             btnStart.style.display = 'none';
+            
+            // iPhone対策：音の邪魔をしないよう、0.5秒遅らせてスリープ防止をON
+            setTimeout(function() {
+                requestWakeLock();  
+            }, 500); 
         });
     }
 });
@@ -114,25 +120,19 @@ window.addEventListener('load', function() {
 // 音を鳴らす
 function playBeepSound() {
     try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        const ctx = new AudioContext();
-        if (ctx.state === 'suspended') ctx.resume();
-
-        const oscillator = ctx.createOscillator();
-        const gainNode = ctx.createGain();
-
-        oscillator.connect(gainNode);
-        gainNode.connect(ctx.destination);
-        oscillator.type = 'sine'; 
-        oscillator.frequency.setValueAtTime(880, ctx.currentTime); 
-
-        gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-
-        oscillator.start();
-        oscillator.stop(ctx.currentTime + 0.3);
+        if (beepAudio) {
+            beepAudio.currentTime = 0; // 再生位置を先頭に戻す
+            
+            // iPhone対策：再生処理のエラーを安全に回避
+            const playPromise = beepAudio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(function(error) {
+                    console.log("iPhoneでのmp3再生ブロック:", error);
+                });
+            }
+        }
     } catch (e) {
-        console.error("音の再生に失敗:", e);
+        console.log("音再生エラー:", e);
     }
 }
 
@@ -143,19 +143,20 @@ function sendNotification(title, body) {
     playBeepSound();
 }
 
-// スリープ防止（Safari用に無名アロー関数を徹底排除）
+// 🌟 Safari対策：中身の空っぽな関数（()=>{}）を完全に無くし、古い書き方に統一
 function requestWakeLock() {
     try {
         noSleep.enable();
         if ('wakeLock' in navigator) {
             navigator.wakeLock.request('screen').then(function(lock) {
                 wakeLock = lock;
+                console.log("WakeLock有効化");
             }).catch(function(err) {
-                console.log("WakeLockエラー:", err);
+                console.log("WakeLock拒否:", err);
             });
         }
     } catch (e) {
-        console.log("スリープ防止処理失敗:", e);
+        console.log("スリープ防止エラー:", e);
     }
 }
 
@@ -165,12 +166,13 @@ function releaseWakeLock() {
         if (wakeLock !== null) {
             wakeLock.release().then(function() {
                 wakeLock = null;
+                console.log("WakeLock解除");
             }).catch(function(err) {
-                console.log("WakeLock解除失敗:", err);
+                console.log("WakeLock解除エラー:", err);
             });
         }
     } catch (e) {
-        console.log("解除処理失敗:", e);
+        console.log("解除エラー:", e);
     }
 }
 
@@ -203,10 +205,9 @@ function startTimer() {
 function updateDisplay() {
     const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
     const seconds = (timeLeft % 60).toString().padStart(2, '0');
-    timerDisplay.textContent = minutes + ":" + seconds;
+    timerDisplay.textContent = `${minutes}:${seconds}`;
 }
 
-// 休憩・仕事切り替え
 function switchMode() {
     isWorking = !isWorking;
     timeLeft = isWorking ? 25 * 60 : 5 * 60;
@@ -273,8 +274,8 @@ function resetPositionToCenter() {
     charContainer.style.transition = "none"; 
     const centerX = (window.innerWidth - 120) / 2;
     const centerY = (window.innerHeight - 120) / 2;
-    charContainer.style.left = centerX + "px";
-    charContainer.style.top = centerY + "px";
+    charContainer.style.left = `${centerX}px`;
+    charContainer.style.top = `${centerY}px`;
 }
 
 function moveCharacterRandomly() {
@@ -284,8 +285,8 @@ function moveCharacterRandomly() {
     const randomX = Math.random() * (screenWidth - 120);
     const randomY = 120 + Math.random() * (screenHeight - 350);
 
-    charContainer.style.left = randomX + "px";
-    charContainer.style.top = randomY + "px";
+    charContainer.style.left = `${randomX}px`;
+    charContainer.style.top = `${randomY}px`;
 
     if (window.bubbleHideTimer) clearTimeout(window.bubbleHideTimer);
     bubble.style.display = 'none'; 
@@ -347,8 +348,8 @@ function dragMove(e) {
     let y = initialTop + dy;
     x = Math.max(0, Math.min(x, window.innerWidth - 120));
     y = Math.max(0, Math.min(y, window.innerHeight - 120));
-    charContainer.style.left = x + "px";
-    charContainer.style.top = y + "px";
+    charContainer.style.left = `${x}px`;
+    charContainer.style.top = `${y}px`;
 }
 
 function dragEnd() {
@@ -359,7 +360,7 @@ function dragEnd() {
 
 function getTodayDateString() {
     const today = new Date();
-    return today.getFullYear() + "-" + (today.getMonth()+1).toString().padStart(2,'0') + "-" + today.getDate().toString().padStart(2,'0');
+    return `${today.getFullYear()}-${(today.getMonth()+1).toString().padStart(2,'0')}-${today.getDate().toString().padStart(2,'0')}`;
 }
 
 async function saveStudyTime(minutes) {
@@ -367,11 +368,9 @@ async function saveStudyTime(minutes) {
     await supabaseClient.from('study_logs').insert([{ user_id: userId, study_date: dateStr, minutes: minutes }]);
 }
 
-// カレンダー描画（Safariでフリーズしない安全なループ処理に変更）
+// カレンダー描画
 async function renderCalendar() {
-    const response = await supabaseClient.from('study_logs').select('study_date, minutes').eq('user_id', userId);
-    const studyData = response.data;
-    const error = response.error;
+    const { data: studyData, error } = await supabaseClient.from('study_logs').select('study_date, minutes').eq('user_id', userId);
     if (error) return;
 
     const studyLogMap = {};
@@ -399,7 +398,7 @@ async function renderCalendar() {
     const month = currentCalendarDate.getMonth();
     
     const titleElement = document.getElementById('calendar-title');
-    if (titleElement) { titleElement.textContent = year + "年 " + (month + 1) + "月"; }
+    if (titleElement) { titleElement.textContent = `${year}年 ${month + 1}月`; }
 
     const firstDayIndex = new Date(year, month, 1).getDay();
     const totalDays = new Date(year, month + 1, 0).getDate();
@@ -414,12 +413,12 @@ async function renderCalendar() {
         cell.className = 'day-cell';
         cell.textContent = day;
 
-        const dateKey = year + "-" + (month+1).toString().padStart(2,'0') + "-" + day.toString().padStart(2,'0');
+        const dateKey = `${year}-${(month+1).toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}`;
         
         if (studyLogMap[dateKey]) {
             const timeDiv = document.createElement('div');
             timeDiv.className = 'study-time';
-            timeDiv.textContent = studyLogMap[dateKey] + "分";
+            timeDiv.textContent = `${studyLogMap[dateKey]}分`;
             cell.appendChild(timeDiv);
             cell.style.background = '#c2dcf1';
         }
@@ -435,5 +434,5 @@ async function renderCalendar() {
     });
 
     const totalElement = document.getElementById('total-study-time');
-    if (totalElement) { totalElement.textContent = "この月の合計：" + calculatedTotal + "分"; }
+    if (totalElement) { totalElement.textContent = `この月の合計：${calculatedTotal}分`; }
 }
