@@ -304,7 +304,7 @@ function calculateAndSaveMinutes() {
     if (!sessionStartTime) return;
     const now = new Date();
     const passedSeconds = Math.floor((now - sessionStartTime) / 1000);
-    const roundedMinutes = Math.round(passedSeconds / 60);
+    const roundedMinutes = Math.floor(passedSeconds / 60);
     
     if (roundedMinutes > 0) {
         saveStudyTime(roundedMinutes);
