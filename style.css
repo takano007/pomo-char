@@ -26,6 +26,7 @@ html, body {
     justify-content: center;
     padding: 20px;
     box-sizing: border-box;
+    min-height: calc(100vh - 10px);
 }
 
 #timer-display {
