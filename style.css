@@ -65,6 +65,7 @@ html, body {
     width: 120px;
     height: 120px;
     z-index: 4;
+    display: none;
 }
 
 #character img {

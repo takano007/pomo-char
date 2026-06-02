@@ -333,6 +333,7 @@ function resetPositionToCenter() {
     const centerY = (window.innerHeight - 120) / 2 + 80;
     charContainer.style.left = `${centerX}px`;
     charContainer.style.top = `${centerY}px`;
+    charContainer.style.display = 'block'; // 表示
 }
 
 function moveCharacterRandomly() {
