@@ -216,6 +216,7 @@ html, body {
     padding: 10px 0;
     color: white;
     background-color: #4a5568;
+    font-size: 14px;
 }
 
 .bottom-return-btn:hover {

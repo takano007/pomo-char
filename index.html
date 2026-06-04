@@ -42,22 +42,16 @@
         
         <div id="calendar-grid"></div>
         
-        <div class="calendar-bottom-layout" style="display: flex; width: 100%; max-width: 320px; margin: 25px auto 0 auto; align-items: flex-end; position: relative; box-sizing: border-box; padding: 0;">
+        <div class="calendar-bottom-layout" style="display: flex; width: 100%; max-width: 350px; margin: 25px auto 0 auto; align-items: flex-end; position: relative; box-sizing: border-box; padding: 0;">
                 
-            <div class="bottom-left-zone" style="width: 50%; display: flex; flex-direction: column; align-items: flex-start; box-sizing: border-box; padding-right: 5px;">
-                <div id="total-study-time">この月の合計：0分</div>
-                <button id="btn-to-timer" class="bottom-return-btn">タイマーへ戻る</button>
+            <div id="calendar-char-container" style="position: absolute; bottom: 0; left: 0; width: 50%; display: flex; justify-content: center; align-items: center; gap: 6px; z-index: 100; cursor: move; box-sizing: border-box; padding-right: 5px;">
+                <img id="calendar-char-img" src="images/walk1.png" alt="キャラクター" style="width: 65px; height: 65px; object-fit: contain; user-select: none; -webkit-user-drag: none; flex-shrink: 0;">
+                <div id="calendar-speech-bubble"></div>                
             </div>
 
-            <div id="calendar-char-container" style="position: absolute; bottom: 0; right: 0; width: 50%; display: flex; justify-content: center; align-items: center; gap: 6px; z-index: 100; cursor: move; box-sizing: border-box; padding-left: 5px;">
-                <img id="calendar-char-img" src="images/walk1.png" alt="キャラクター" style="width: 65px; height: 65px; object-fit: contain; user-select: none; -webkit-user-drag: none; flex-shrink: 0;">
-                
-                <div id="calendar-speech-bubble">
-                    -
-                    <div style="position: absolute; right: -7px; top: 50%; transform: translateY(-50%); width: 0; height: 0; border-style: solid; border-width: 6px 0 6px 7px; border-color: transparent transparent transparent #3182ce;"></div>
-                    <div style="position: absolute; right: -5px; top: 50%; transform: translateY(-50%); width: 0; height: 0; border-style: solid; border-width: 5px 0 5px 6px; border-color: transparent transparent transparent #fff;"></div>
-                </div>
-                
+            <div class="bottom-right-zone" style="width: 50%; margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; box-sizing: border-box; padding-left: 5px;">
+                <div id="total-study-time">この月の合計：0分</div>
+                <button id="btn-to-timer" class="bottom-return-btn">タイマーへ戻る</button>
             </div>
 
         </div>
