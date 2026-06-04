@@ -200,30 +200,40 @@ html, body {
 }
 
 #total-study-time {
-    text-align: center;
-    margin: 20px 0 10px 0;
+    font-size: 14px;
     font-weight: bold;
-    font-size: 16px;
-    color:#3182ce;
+    color: #4d79ff;
+    margin-bottom: 12px;
+    text-align: left;
+    width: 100%;
 }
 
 .bottom-return-btn {
     width: 100%;
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 14px 0;
-    font-size: 16px;
-    font-weight: bold;
+    margin: 0;
+    box-sizing: border-box;
+    border-radius:10px;
+    padding: 10px 0;
     color: white;
     background-color: #4a5568;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.2s;
-    display: block;
 }
 
 .bottom-return-btn:hover {
     background-color: #2d3748;
+}
+
+#calendar-speech-bubble{
+    display: none;
+    background: #fff;
+    border: 1px solid #898f99;
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #2d3748;
+    text-align: center;
+    position: relative;
+    max-width: 90px;
+    white-space: normal;
+    word-break: break-all;
 }

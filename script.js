@@ -566,3 +566,4 @@ async function renderCalendar() {
         console.log("カレンダーキャラ処理エラー:", e);
     }
 }
+
