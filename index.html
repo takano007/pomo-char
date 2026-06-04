@@ -46,6 +46,19 @@
 
         <button id="btn-to-timer" class="bottom-return-btn">タイマーへ戻る</button>
 
+        <!-- カレンダー画面のキャラクター -->
+        <div id="calendar-char-container" style="margin-top: 25px; display: flex; justify-content: center; align-items: center; gap: 12px; min-height: 90px; width: 100%;">
+            <img id="calendar-char-img" src="images/walk1.png" alt="キャラクター" style="width: 75px; height: 75px; object-fit: contain;">
+            
+            <div id="calendar-speech-bubble" style="display: none; background: #fff; border: 1px solid #b9b9b9; border-radius: 10px; padding: 6px 12px; font-size: 13px; font-weight: bold; color: #2d3748; text-align: center; position: relative; max-width: 180px;">
+                -
+                <div style="position: absolute; right: -7px; top: 50%; transform: translateY(-50%); width: 0; height: 0; border-style: solid; border-width: 6px 0 6px 7px; border-color: transparent transparent transparent #3182ce;"></div>
+                <div style="position: absolute; right: -5px; top: 50%; transform: translateY(-50%); width: 0; height: 0; border-style: solid; border-width: 5px 0 5px 6px; border-color: transparent transparent transparent #fff;"></div>
+            </div>
+            
+        </div>
+
+
         <!-- ユーザーID引継ぎ機能 -->
         <div class="transfer-section" style="margin-top: 40px; text-align: center; width: 100%;">
             <p id="trigger-id-display" style="font-size: 11px; color: #a0aec0; cursor: pointer; text-decoration: underline; margin: 0; padding: 10px 0;">

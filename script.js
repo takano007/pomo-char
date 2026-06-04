@@ -25,7 +25,11 @@ let beepAudio = new Audio('beep.mp3');
 // アニメーション用
 const charImg = document.getElementById('char-img'); 
 let animTimer = null;   
-let animIndex = 0;      
+let animIndex = 0;
+
+// 追加：カレンダー画面のキャラクター用変数
+let calAnimTimer = null;
+let calAnimIndex = 0;
 
 const breakImages = ["images/idle1.png", "images/idle2.png"]; 
 const workImages = ["images/work1.png", "images/work2.png"];   
@@ -51,6 +55,9 @@ document.getElementById('btn-to-calendar').addEventListener('click', function() 
 });
 
 document.getElementById('btn-to-timer').addEventListener('click', function() {
+    // 🌟 追加：カレンダー側のキャラのタイマーを止める
+    if (calAnimTimer !== null) { clearInterval(calAnimTimer); calAnimTimer = null; }
+
     const tPage = document.getElementById('timer-page');
     const cPage = document.getElementById('calendar-page');
     if (tPage && cPage) {
@@ -493,4 +500,69 @@ async function renderCalendar() {
 
     const totalElement = document.getElementById('total-study-time');
     if (totalElement) { totalElement.textContent = `この月の合計：${calculatedTotal}分`; }
+
+    // 🌟 ここから追加：カレンダー画面の連続日数計算とキャラクター制御
+    try {
+        // 1. カレンダーキャラのアニメーションを開始（既存のbreakImagesで2連モーション）
+        if (calAnimTimer !== null) clearInterval(calAnimTimer);
+        calAnimIndex = 0;
+        calAnimTimer = setInterval(function() {
+            calAnimIndex = (calAnimIndex + 1) % walkImages.length;
+            const calCharImg = document.getElementById('calendar-char-img');
+            if (calCharImg) calCharImg.src = walkImages[calAnimIndex];
+        }, 500);
+
+        // 2. 25分以上頑張った日を重複なしでリスト化（昇順ソート）
+        const loggedDates = [];
+        Object.keys(studyLogMap).forEach(function(key) {
+            if (studyLogMap[key] >= 25) {
+                loggedDates.push(key); // "YYYY-MM-DD"
+            }
+        });
+        loggedDates.sort();
+
+        // 3. 連続日数の計算
+        let maxStreak = 0;
+        let currentStreak = 0;
+        let todayStr = getTodayDateString();
+        
+        // 昨日（今日の一日前）の日付文字列を作る
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        let yesterdayStr = yesterday.getFullYear() + "-" + (yesterday.getMonth()+1).toString().padStart(2,'0') + "-" + yesterday.getDate().toString().padStart(2,'0');
+
+        // 今日、または昨日から遡って連続している日数を数える
+        let checkDate = new Date();
+        // もし今日25分未満で、昨日25分以上なら、昨日を起点にチェック開始
+        if (!loggedDates.includes(todayStr) && loggedDates.includes(yesterdayStr)) {
+            checkDate = yesterday;
+        }
+
+        while (true) {
+            let dKey = checkDate.getFullYear() + "-" + (checkDate.getMonth()+1).toString().padStart(2,'0') + "-" + checkDate.getDate().toString().padStart(2,'0');
+            if (loggedDates.includes(dKey)) {
+                currentStreak++;
+                checkDate.setDate(checkDate.getDate() - 1); // 1日前へ遡る
+            } else {
+                break; // 連続が途切れたら終了
+            }
+        }
+
+        // 4. 条件に合わせて吹き出しを表示
+        const calBubble = document.getElementById('calendar-speech-bubble');
+        if (calBubble) {
+            if (currentStreak === 2) {
+                calBubble.textContent = "いい調子！";
+                calBubble.style.display = 'block';
+            } else if (currentStreak >= 3) {
+                calBubble.textContent = currentStreak + "日連続！頑張ってるね";
+                calBubble.style.display = 'block';
+            } else {
+                // 0日または1日のときは吹き出しを隠す
+                calBubble.style.display = 'none';
+            }
+        }
+    } catch (e) {
+        console.log("カレンダーキャラ処理エラー:", e);
+    }
 }
